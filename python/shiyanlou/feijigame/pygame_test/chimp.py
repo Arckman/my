@@ -6,23 +6,25 @@ study example for official pygame example chimp(http://www.pygame.org/docs/tut/C
 #import modules
 import os,sys
 import pygame
-#The special pygame module named “locals” contains constants and functions that have proven useful to put into your program’s global namespace.
+from pygame.locals import *#The special pygame module named “locals” contains constants and functions that have proven useful to put into your program’s global namespace.
 if not pygame.font: print ('Warning, fonts disabled')
 if not pygame.mixer: print ('Warning, sound disabled')#Some pygame modules are optional, and if they aren’t found, their value is set to “None”.
+
+mypath='/home/fff/.local/lib/python3.5/site-packages/pygame/examples'
 
 #load resources
 def load_image(name,colorkey=None):
     '''
     A colorkey is used in graphics to represent a color of the image that is transparent.
     '''
-    filename=os.path.join('data',name)
+    filename=os.path.join(mypath,'data',name)
     try:
         image=pygame.image.load(filename)
     except pygame.error:
         print('Cannot load image: {}'.format(filename))
         raise SystemExit(str(geterror()))
     image=image.convert()
-    if colorkey not None:
+    if colorkey is not None:
         if colorkey is -1:
             colorkey=image.get_at((0,0))
         image.set_colorkey(colorkey,pygame.locals.RLEACCEL)
@@ -36,15 +38,15 @@ def load_sound(name):
         def play(self):pass
     if not pygame.mixer:
         return NoneSound()
-    filename=os.path.join('data',name)
+    filename=os.path.join(mypath,'data',name)
     try:
         sound=pygame.mixer.Sound(filename)
-    except pygame.error,message:
+    except pygame.error:
         print('Cannot load sound: {}'.format(filename))
         raise SystemExit(str(geterror()))
     return sound
 
-class First(pygame.sprite.Sprite):
+class Fist(pygame.sprite.Sprite):
     """moves a clenched fist on the screen, following the mouse"""
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -105,6 +107,65 @@ class Chimp(pygame.sprite.Sprite):
         if not self.dizzy:
             self.dizzy=1
             self.original=self.image
+
+def main():
+    #initialize everything
+    pygame.init()
+    screen=pygame.display.set_mode((468,60))
+    pygame.display.set_caption('Monkey Fever')
+    pygame.mouse.set_visible(0)
+
+    #create background
+    background=pygame.Surface(screen.get_size())
+    background=background.convert()
+    background.fill((255,255,255))
+
+    #put text on the background and centered
+    if pygame.font:
+        font=pygame.font.Font(None,36)
+        text = font.render("Pummel The Chimp, And Win $$$", 1, (10, 10, 10))
+        textpos = text.get_rect(centerx=background.get_width()/2)
+        background.blit(text, textpos)
+
+    #display the background when setup finish,black otherwise
+    screen.blit(background, (0, 0))
+    pygame.display.flip()
+
+    #Prepare Game Object
+    whiff_sound = load_sound('whiff.wav')
+    punch_sound = load_sound('punch.wav')
+    chimp = Chimp()
+    fist = Fist()
+    allsprites = pygame.sprite.RenderPlain((fist, chimp))
+    clock = pygame.time.Clock()
+
+    #main loop
+    while True:
+        clock.tick(60)
+
+        #handle event
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                return
+            elif event.type == KEYDOWN and event.key == K_ESCAPE:
+                return
+            elif event.type == MOUSEBUTTONDOWN:
+                if fist.punch(chimp):
+                    punch_sound.play() #punch
+                    chimp.punched()
+                else:
+                    whiff_sound.play() #miss
+            elif event.type == MOUSEBUTTONUP:
+                fist.unpunch()
+        
+        allsprites.update()
     
-    
+        #Draw Everything
+        screen.blit(background, (0, 0))
+        allsprites.draw(screen)
+        pygame.display.flip()
+    pygame.quit()
+
+if __name__=='__main__':
+    main()
 

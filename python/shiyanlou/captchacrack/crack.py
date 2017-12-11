@@ -51,3 +51,5 @@ for letter in letterrange:
     im3.save("./img/%f-%d.gif"%(t,count))
     count+=1
 
+#a vector space search engine doc:http://ondoc.logand.com/d/2697/pdf
+

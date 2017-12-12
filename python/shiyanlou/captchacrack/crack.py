@@ -43,13 +43,67 @@ for x in range(im2.size[0]):
     inletter=False
 # print(letterrange)
 
+
+#a vector space search engine doc:http://ondoc.logand.com/d/2697/pdf
+#vector space search engine is a simple function for computing the relativity/correlation of two vectors using cosine
+
+import numpy as np
+import math
+#vector space search engine compute object
+class VectorCompare:
+    @staticmethod
+    def buildvector(img):
+        d1={}
+        for i,v in enumerate(img.getdata()):
+            d1[i]=v
+        return d1
+
+    @staticmethod
+    def magnitude(concordance):
+        total=0
+        for word,count in concordance.items():
+            total+=count**2
+        return math.sqrt(total)
+
+    @staticmethod
+    def relation(concordance1,concordance2):
+        '''
+        compute cosine of two vectors, they must have the same size and sharp
+        '''
+        relevance,topvalue=0,0
+        for word,count in concordance1.items():
+            if word in concordance2.keys():
+                topvalue+=count*concordance2[word]
+        return topvalue/(VectorCompare.magnitude(concordance1)*VectorCompare.magnitude(concordance2))
+
+#precompute vector space search engine training data
+import string
+import os
+iconset=string.ascii_lowercase+string.digits
+imageset=[] #trained data
+for letter in iconset:
+    tmp=[]
+    for img in os.listdir("./iconset/%s/"%(letter)):
+        if img != "Thumbs.db" and img != ".DS_Store":# windows check...
+            tmp.append(VectorCompare.buildvector(Image.open("./iconset/%s/%s"%(letter,img))))
+    imageset.append({letter:tmp})
+
+
 import time
 count =0
 t=time.time()
 for letter in letterrange:
     im3=im2.crop((letter[0],0,letter[1],im2.size[1]))
-    im3.save("./img/%f-%d.gif"%(t,count))
-    count+=1
+    # im3.save("./img/%f-%d.gif"%(t,count))
+    # count+=1
 
-#a vector space search engine doc:http://ondoc.logand.com/d/2697/pdf
+    #now,compute relativity(cosine) using VectorCompare.relation()
+    im3_vector=VectorCompare.buildvector(im3)
+    guess=[]
+    for image in imageset:
+        for l,vector in image.items():
+            guess.append((VectorCompare.relation(vector[0],im3_vector),l))
+    guess.sort(reverse=True)
+    print(guess[0])
+
 

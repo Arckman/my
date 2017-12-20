@@ -114,6 +114,81 @@ class Nude:
                 
                 #遍历完4个相邻像素，如果region=-1，说明周围没有有效的region;如果region!=-1，说明周围存在有效的region，将当前像素纳入到该region中。
                 if region==-1:
-                    
+                    _skin=self.skin_map[_id-1]._replace(region=len(self.detected_regions))
+                    self.skin_map[_id-1]=_skin
+                    self.detected_regions[_id-1].append([self.skin_map[_id-1]])
+                elif region!=None:
+                    _skin=self.skin_map[_id-1]._replace(region=region)
+                    self.skin_map[_id-1]=_skin
+                    self.detected_regions[region].append(self.skin_map[_id-1])
 
+        #遍历后所有像素之后，每个像素已经归属region，但是self.merge_regions里还有待合并的region
+        self._merge(self.detected_regions,self.merge_regions)
+        self._analyse_regions()
+        return self
+    
+    def _classify_skin(self,r,g,b):
+        '''
+        检测像素是否为皮肤，可以修正效果
+        '''
+        #RGB模式判定
+        rgb_classifier = r >95 and g >40 and g<100 and b>20 and \
+            max([r,g,b])-min([r,g,b])>15 and \
+            abs(r-g)>15 and \
+            r>g and r>b
+        nr,ng,nb=self._to_normalized(r,g,b)
+        norm_rgb_classifier=nr/ng>1.185 and \
+            float(r*b)/((r+g+b)**2)>0.107 and \
+            float(r*g)/((r+g+b)**2)>0.112
+        
+        #HSV模式判定
+        h,s,v=self._to_hsv(r,g,b)
+        hsv_classifier=h>0 and h<35 and s>0.23 and s<0.68
+
+        #YCbCr模式判定
+        y,cb,cr=self._to_ycbcr(r,g,b)
+        ycbcr_classifier=97.5<=cb<=142.5 and 134<=cr<=176
+
+        return rgb_classifier or norm_rgb_classifier or hsv_classifier or ycbcr_classifier
+        #return rgb_classifier
+    
+    def _to_normalized(self,r,g,b):
+        if r==0:
+            r=0.0001
+        if g==0:
+            g=0.0001
+        if b==0:
+            b=0.0001
+        _sum=float(r+g+b)
+        return [r/_sum,g/_sum,b/_sum]
+
+    def _to_ycbcr(self,r,g,b):
+        y=.299*r+.587*g+.114*b
+        cb=128-0.168736*r-0.331364*g+0.5*b
+        cr=128+0.5*r-0.418688*g-0.081312*b
+        return y,cb,cr
+
+    def _to_hsv(self,r,g,b):
+        h=0
+        _sum=float(r+g+b)
+        _max=float(max([r,g,b]))
+        _min=float(min([r,g,b]))
+        diff=float(_max-_min)
+        if _sum==0:
+            _sum=0.0001
+        if _max==r:
+            if diff==0:
+                h=sys.maxsize
+            else:
+                h=(g-b)/diff
+        elif _max==g:
+            h=2+((g-r)/diff)
+        else:
+            h=4+((r-g)/diff)
+        h*=60
+        if h<0:
+            h+=360
+        return [h,1.0-(3.0*(_min/_sum)),(1.0/3.0)*_max]
+
+    def 
                     

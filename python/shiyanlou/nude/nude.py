@@ -190,5 +190,142 @@ class Nude:
             h+=360
         return [h,1.0-(3.0*(_min/_sum)),(1.0/3.0)*_max]
 
-    def 
+    def _add_merge(self,_from,_to):
+        self.last_from=_from
+        self.last_to=_to
+        from_index,to_index=-1,-1   #self.merge_regions的索引值
+        for index,region in enumerate(self.merge_regions):
+            for r_index in region:
+                if r_index ==_from:
+                    from_index=index
+                if r_index==_to:
+                    to_index=index
+        
+        #分3种情况
+        #_from and _to in self.merge_regions
+        if from_index!=-1 and to_index!=-1:
+            if from_index!=to_index:
+                self.merge_regions[from_index].extend(self.merge_regions[to_index])
+                del(self.merge_regions[to_index])
+            return
+
+        #none of _from and _to in self.merge_regions
+        if from_index==-1 and to_index==-1:
+            self.merge_regions.append([_from,_to])
+            retrun
+
+        #one of _from and _to in self.merge_regions
+        if from_index!=-1 and to_index==-1:
+            self.merge_regions[from_index].append(_to)
+            return
+        if from_index==-1 and to_index!=-1:
+            self.merge_regions[to_index].append(_from)
+            return
+
+    def _merge(self,detected_regions,merge_regions):
+        new_detected_regions=[] #皮肤区域列表，包含Skin对象列表，
+        for index,regions in enumerate(merge_regions):
+            new_detected_regions.append([])
+            for r_index in regions:
+                new_detected_regions[index].extend(detected_regions[r_index])
+                detected_regions[r_index]=[]
+        for region in detected_regions:
+            if len(region)>0:
+                new_detected_regions.append(region)
+        self._clear_regions(new_detected_regions)
+
+    def _clear_regions(self,detected_regions):
+        '''
+        只保存像素大于制定数量的皮肤区域？
+        '''
+        for region in detected_regions:
+            if len(region)>30:
+                self.skin_regions.append(region)
+    
+    def _analyse_regions(self):
+        #皮肤区域小于3（阈值）时，不是色情图片
+        if len(self.skin_regions)<3:
+            self.message="Less than 3 skin regions ({_skin_regions_size})".format(_skin_regions_size=len(self.skin_regions))
+            self.result=False
+            return self.result
+
+        self.skin_regions=sorted(self.skin_regions,key=lambda x :len(x),reverse=True)
+
+        total_skin=float(sum([len(skin_region) for skin_region in self.skin_regions]))
+
+        #如果皮肤区域与整个图像的比值小于15%，不是色情图片
+        if total_skin/self.total_pixels*100<15:
+            self.message="Total skin percentage less than 15 ({:.2f})".format(total_skin/self.total_pixels*100)
+            self.result=False
+            return self.result
+
+        #如果最大皮肤区域小鱼总皮肤面积的45%，不是色情图片
+        if len(self.skin_regions[0])/total_skin*100<45:
+            self.message="The biggest region contains less than 45 ({:.2f})".format(len(self.skin_regions[0])/total_skin*100)
+            self.result=False
+            return self.result
+
+        #皮肤区域数量超过60个，不是色情图片
+        if len(self.skin_regions)>60:
+            self.message="More than 60 skin regions ({})".format(len(self.skin_regions))
+            self.result=False
+            return self.result
+
+        #其他情况为色情图片
+        self.message="Nude!"
+        self.result=True
+        return self.result
+
+    def inspect(self):
+        _image="{} {} {}*{}".format(self.image.filename,self.image.format,self.width,self.height)
+        return "{_image}: result={_result} message='{_message}'".format(_image=_image,_result=self.result,_message=self.message)
+
+    def showSkinRegions(self):
+        if self.result is Nonde:
+            return 
+
+        skinIdSet=set()
+        simage=self.image
+        simageData=simage.load()
+
+        for sr in self.skin_regions:
+            for pixel in sr:
+                skinIdSet.add(pixel.id)
+        
+        for pixel in self.skin_map:
+            if pixel.id not in skinIdSet:
+                simageData[pixel.x,pixel.y]=0,0,0
+            else:
+                simageData[pixel.x,pixel.y]=255,255,255
+        
+        filePath=os.path.abspath(self.image.filename)
+        fileDirecotry=os.path.dirname(filePath)+"/"
+        fileFullname=os.path.basename(filePath)
+        fileName,fileExtName=os.path.splitext(fileFullname)
+        simage.save('{}{}_{}{}'.format(fileDirecotry,filename,'Nude' if self.result else 'Normal',fileExtName))
+    
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser(description='Dectect Nudity in images.')
+    parser.add_argument('files',metavar='image',nargs='+',help="Images you wish to test")
+    parser.add_argument('-r','--resize',action='store_true',help="Reduce image size to increase speed of scanning")
+    parser.add_argument('-v','--visualization',action='store_true',help="Generating areas of skin image")
+    args=parser.parse_args()
+
+    for fname in args.fies:
+        if os.path.isfile(fname):
+            n=Node(fname)
+            if args.resize:
+                n.resize(maxheight=800,maxwidth=600)
+            n.parse()
+            if args.visualization:
+                n.showSkinRegions()
+            print(n.result,n.inspect())
+        else:
+            print(fname,"is not a file")
+
+        
+
+
+
                     

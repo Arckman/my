@@ -21,7 +21,7 @@ class Nude:
             f=self.image.filename
             self.image=new_img
             self.image.filename=f
-        像素对应的Skin对象
+        #像素对应的Skin对象
         self.skin_map=[]
         #检测到的所有皮肤区域，索引号就是皮肤区域编号，值为Skin对象列表
         self.detected_regions=[]
@@ -79,8 +79,8 @@ class Nude:
         
         #针对每个pixel创建Skin对象
         pixels=self.image.load()
-        for y in self.height:
-            for x in self.width:
+        for y in range(self.height):
+            for x in range(self.width):
                 r,g,b=pixels[x,y]
                 #判断是否肤色像素
                 isSkin=True if self._classify_skin(r,g,b) else False
@@ -97,6 +97,7 @@ class Nude:
                 _id-1-self.width,   #up
                 _id-1-self.width+1] #up and right
                 region_id=1
+                region=-1
                 for index in check_indexes:
                     try:
                         self.skin_map[index]
@@ -116,7 +117,7 @@ class Nude:
                 if region==-1:
                     _skin=self.skin_map[_id-1]._replace(region=len(self.detected_regions))
                     self.skin_map[_id-1]=_skin
-                    self.detected_regions[_id-1].append([self.skin_map[_id-1]])
+                    self.detected_regions.append([self.skin_map[_id-1]])
                 elif region!=None:
                     _skin=self.skin_map[_id-1]._replace(region=region)
                     self.skin_map[_id-1]=_skin
@@ -212,7 +213,7 @@ class Nude:
         #none of _from and _to in self.merge_regions
         if from_index==-1 and to_index==-1:
             self.merge_regions.append([_from,_to])
-            retrun
+            return
 
         #one of _from and _to in self.merge_regions
         if from_index!=-1 and to_index==-1:
@@ -307,14 +308,15 @@ class Nude:
 if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser(description='Dectect Nudity in images.')
-    parser.add_argument('files',metavar='image',nargs='+',help="Images you wish to test")
+    # parser.add_argument('files',metavar='image',nargs='+',help="Images you wish to test")
     parser.add_argument('-r','--resize',action='store_true',help="Reduce image size to increase speed of scanning")
     parser.add_argument('-v','--visualization',action='store_true',help="Generating areas of skin image")
     args=parser.parse_args()
+    args.files=['./img/1.jpg',]
 
-    for fname in args.fies:
+    for fname in args.files:
         if os.path.isfile(fname):
-            n=Node(fname)
+            n=Nude(fname)
             if args.resize:
                 n.resize(maxheight=800,maxwidth=600)
             n.parse()

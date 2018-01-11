@@ -1,6 +1,7 @@
 import os,sys
 import jieba,codecs,math
 import jieba.posseg as pseg
+from openpyxl import Workbook
 
 names={} #姓名字典{姓名:occurrence number}
 relationships={}    #关系字典{ egde-sourcename:{egde-targetname:weight}}
@@ -49,6 +50,20 @@ with codecs.open('busan_edge.txt','w','utf8') as f:
             if w>3:
                 f.write(name+'\t'+v+'\t'+str(w)+'\r\n')
 
+wb=Workbook()
+ws=wb.active
+ws.append(['Id','Label','Weight'])
+for name,times in names.items():
+    ws.append([name,name,str(times)])
+wb.save('busan_n.xlsx')
 
+wb=Workbook()
+ws=wb.active
+ws.append(['Source','Target','Weight'])
+for name,edges in relationships.items():
+    for v,w in edges.items():
+        if w>3:
+            ws.append([name,v,str(w)])
+wb.save('busan_e.xlsx')
 
 

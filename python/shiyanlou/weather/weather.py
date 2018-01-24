@@ -1,3 +1,4 @@
+#data:http://labfile.oss.aliyuncs.com/courses/780/WeatherData.zip
 import pandas as pd
 import numpy as np
 import datetime
@@ -5,6 +6,7 @@ import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from dateutil import parser
+
 df_asti=pd.read_csv("WeatherData/asti_270615.csv")
 df_bologna=pd.read_csv("WeatherData/bologna_270615.csv")
 df_cesena=pd.read_csv("WeatherData/cesena_270615.csv")
@@ -16,8 +18,13 @@ df_piacenza=pd.read_csv("WeatherData/piacenza_270615.csv")
 df_ravenna=pd.read_csv("WeatherData/ravenna_270615.csv")
 df_torino=pd.read_csv("WeatherData/torino_270615.csv")
 
+#subplots函数，fig是图像，ax是坐标轴对象
+fig,ax=plt.subplots(1,2)
+#调整x轴坐标刻度，旋转70度，方便查看
+plt.xticks(rotation=70)
+
 '''
-画温度plot,3个离海最近的城市和3个离海最远的城市
+plot1:画温度plot,3个离海最近的城市和3个离海最远的城市
 '''
 #读取温度数据
 y1=df_ravenna['temp']
@@ -39,11 +46,6 @@ day_cesena=[parser.parse(x) for x in x3]
 day_milano=[parser.parse(x) for x in x4]
 day_asti=[parser.parse(x) for x in x5]
 day_torino=[parser.parse(x) for x in x6]
-#subplots函数，fig是图像，ax是坐标轴对象
-fig,ax=plt.subplots(1,2)
-
-#调整x轴坐标刻度，旋转70度，方便查看
-plt.xticks(rotation=70)
 
 #调整时间格式
 hours=mdates.DateFormatter("%H:%M")
@@ -57,7 +59,7 @@ ax[0].plot(day_milano,y4,'g',day_asti,y5,'g',day_torino,y6,'g')
 
 
 '''
-画温度最值和离海距离的图
+plot2:画温度最值和离海距离的图
 '''
 #dist
 dist=[df_ravenna['dist'][0],
@@ -94,6 +96,33 @@ temp_min=[df_ravenna['temp'].min(),
     df_torino['temp'].min()]
 
 ax[1].plot(dist,temp_max,'ro')
+
+#线性回归计算
+from sklearn.svm import SVR
+
+dist1=dist[:5]
+dist2=dist[5:]
+dist1=[[x] for x in dist1]
+dist2=[[x] for x in dist2]
+
+temp_max1=temp_max[:5]
+temp_max2=temp_max[5:]
+
+#创建线性拟合
+svr_lin1=SVR(kernel='linear',C=1e3)
+svr_lin2=SVR(kernel='linear',C=1e3)
+#加入数据
+svr_lin1.fit(dist1,temp_max1)
+svr_lin2.fit(dist2,temp_max2)
+
+xp1=np.arange(10,100,10).reshape((9,1))
+xp2=np.arange(50,400,50).reshape((7,1))
+yp1=svr_lin1.predict(xp1)
+yp2=svr_lin2.predict(xp2)
+
+ax[1].set_xlim(0,400)
+ax[1].plot(xp1,yp1,c='b',label='Strong sea effect')
+ax[1].plot(xp2,yp2,c='g',label='Light sea effect')
 
 #显示图像
 plt.show()

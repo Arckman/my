@@ -19,7 +19,7 @@ df_ravenna=pd.read_csv("WeatherData/ravenna_270615.csv")
 df_torino=pd.read_csv("WeatherData/torino_270615.csv")
 
 #subplots函数，fig是图像，ax是坐标轴对象
-fig,ax=plt.subplots(2,2)
+fig,ax=plt.subplots(3,4)
 #调整x轴坐标刻度，旋转70度，方便查看
 plt.xticks(rotation=70)
 
@@ -126,8 +126,9 @@ ax[0,1].plot(xp2,yp2,c='g',label='Light sea effect')
 
 print(svr_lin1.coef_,svr_lin1.intercept_)
 print(svr_lin2.coef_,svr_lin2.intercept_)
+
 '''
-plot3:
+plot3:线性回归直线交点
 '''
 from scipy.optimize import fsolve
 #第一条拟合直线
@@ -149,7 +150,103 @@ def findIntersection(fun1,fun2,x0):
 result=findIntersection(line1,line2,0.0)
 print("[x,y]=[%d,%d]"%(result,line1(result)))
 x=np.linspace(0,300,31)
-ax[1,0].plot(x,line1(x),x,line2(x),result,line1(result),'ro')
+ax[0,2].plot(x,line1(x),x,line2(x),result,line1(result),'ro')
+
+'''
+plot4:最低温度和离海距离
+'''
+ax[0,3].axis((0,400,15,25))
+ax[0,3].plot(dist,temp_min,'bo')
+
+'''
+plot5:湿度数据分析
+'''
+y1=df_ravenna['humidity']
+y2=df_faenza['humidity']
+y3=df_cesena['humidity']
+y4=df_milano['humidity']
+y5=df_asti['humidity']
+y6=df_torino['humidity']
+ax[1,0].xaxis.set_major_formatter(hours)
+ax[1,0].plot(day_ravenna,y1,'r',day_faenza,x2,'r',day_cesena,x3,'r')
+ax[1,0].plot(day_milano,x4,'g',day_asti,x5,'g',day_torino,x6,'g')
+
+'''
+plot6:湿度最大值和离海距离
+'''
+hum_max=[df_ravenna['humidity'].max(),
+    df_cesena['humidity'].max(),
+    df_faenza['humidity'].max(),
+    df_faenza['humidity'].max(),
+    df_bologna['humidity'].max(),
+    df_mantova['humidity'].max(),
+    df_piacenza['humidity'].max(),
+    df_milano['humidity'].max(),
+    df_asti['humidity'].max(),
+    df_torino['humidity'].max()]
+ax[1,1].plot(dist,hum_max,'bo')
+
+'''
+plot7:湿度最小值和离海距离
+'''
+hum_min=[df_ravenna['humidity'].min(),
+    df_cesena['humidity'].min(),
+    df_faenza['humidity'].min(),
+    df_faenza['humidity'].min(),
+    df_bologna['humidity'].min(),
+    df_mantova['humidity'].min(),
+    df_piacenza['humidity'].min(),
+    df_milano['humidity'].min(),
+    df_asti['humidity'].min(),
+    df_torino['humidity'].min()]
+ax[1,2].plot(dist,hum_min,'bo')
+
+'''
+plot8:ravenna风力信息图
+'''
+ax[1,3].plot(df_ravenna['wind_deg'],df_ravenna['wind_speed'],'ro')
+
+'''
+plot9:ravenna风力极区图
+'''
+def showRoseWind(value,city_name,max_value,plot_index):
+    N=8
+    theta=np.arange(0.,2*np.pi,2*np.pi/N)
+    radii=np.array(value)
+    #构建极区图的坐标系
+    # _axes=plt.axes([0.025,0.025,0.95,0.95],polar=True)
+    ax[plot_index[0],plot_index[1]].axis((0.025,0.025,0.95,0.95))
+    #设置颜色，x越大，越接近蓝色
+    colors=[(1-x/max_value,1-x/max_value,0.75) for x in radii]
+    #画扇区
+    # _axes.bar(theta,radii,width=(2*np.pi/N),bottom=0.0,color=colors)
+    ax[plot_index[0],plot_index[1]].bar(theta,radii,width=(2*np.pi/N),bottom=0.0,color=colors)
+    #设置标题
+    # _axes.set_title(city_name,x=0.2,fontsize=20)
+    ax[plot_index[0],plot_index[1]].set_title(city_name,x=0.2,fontsize=20)
+
+
+hist,bin=np.histogram(df_ravenna['wind_deg'],8,[0,360])
+print([hist,bin])
+showRoseWind(hist,'Ravenna',max(hist),(2,0))
+
+'''
+plot10:ferrara风力极区图
+'''
+hist,bin=np.histogram(df_ferrara['wind_deg'],8,[0,360])
+print([hist,bin])
+showRoseWind(hist,'Ferrara',max(hist),(2,1))
+
+'''
+plot11:ferrara平均风力极区图
+'''
+def roseWind_avgSpeed(df_city):
+    degs=np.arange(45,361,35)
+    tmp=[]
+    for deg in degs:
+        tmp.append(df_city[(df_city['wind_deg']>(deg-46)) & (df_city['wind_deg']<deg)]['wind_speed'].mean())
+    return np.array(tmp)
+# showRoseWind(roseWind_avgSpeed(df_ferrara),'Ferrara',max(hist),(2,2))
 
 #显示图像
 plt.show()

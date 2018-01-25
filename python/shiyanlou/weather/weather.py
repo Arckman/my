@@ -19,7 +19,7 @@ df_ravenna=pd.read_csv("WeatherData/ravenna_270615.csv")
 df_torino=pd.read_csv("WeatherData/torino_270615.csv")
 
 #subplots函数，fig是图像，ax是坐标轴对象
-fig,ax=plt.subplots(1,2)
+fig,ax=plt.subplots(2,2)
 #调整x轴坐标刻度，旋转70度，方便查看
 plt.xticks(rotation=70)
 
@@ -34,7 +34,7 @@ x2=df_faenza['day']
 y3=df_cesena['temp']
 x3=df_cesena['day']
 y4=df_milano['temp']
-x4=df_milano['day']                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+x4=df_milano['day']
 y5=df_asti['temp']
 x5=df_asti['day']
 y6=df_torino['temp']
@@ -51,11 +51,11 @@ day_torino=[parser.parse(x) for x in x6]
 hours=mdates.DateFormatter("%H:%M")
 
 #设置x轴显示格式
-ax[0].xaxis.set_major_formatter(hours)
+ax[0,0].xaxis.set_major_formatter(hours)
 
 #画出图像，day_milano是x轴数据，y1是y轴数据，r代表红色
-ax[0].plot(day_ravenna,y1,'r',day_faenza,y2,'r',day_cesena,y3,'r')
-ax[0].plot(day_milano,y4,'g',day_asti,y5,'g',day_torino,y6,'g')
+ax[0,0].plot(day_ravenna,y1,'r',day_faenza,y2,'r',day_cesena,y3,'r')
+ax[0,0].plot(day_milano,y4,'g',day_asti,y5,'g',day_torino,y6,'g')
 
 
 '''
@@ -83,7 +83,7 @@ temp_max=[df_ravenna['temp'].max(),
     df_milano['temp'].max(),
     df_asti['temp'].max(),
     df_torino['temp'].max()]
-#min temp
+#min temp                                                                                                                                                                                               
 temp_min=[df_ravenna['temp'].min(),
     df_cesena['temp'].min(),
     df_faenza['temp'].min(),
@@ -95,7 +95,7 @@ temp_min=[df_ravenna['temp'].min(),
     df_asti['temp'].min(),
     df_torino['temp'].min()]
 
-ax[1].plot(dist,temp_max,'ro')
+ax[0,1].plot(dist,temp_max,'ro')
 
 #线性回归计算
 from sklearn.svm import SVR
@@ -120,9 +120,36 @@ xp2=np.arange(50,400,50).reshape((7,1))
 yp1=svr_lin1.predict(xp1)
 yp2=svr_lin2.predict(xp2)
 
-ax[1].set_xlim(0,400)
-ax[1].plot(xp1,yp1,c='b',label='Strong sea effect')
-ax[1].plot(xp2,yp2,c='g',label='Light sea effect')
+ax[0,1].set_xlim(0,400)
+ax[0,1].plot(xp1,yp1,c='b',label='Strong sea effect')
+ax[0,1].plot(xp2,yp2,c='g',label='Light sea effect')
+
+print(svr_lin1.coef_,svr_lin1.intercept_)
+print(svr_lin2.coef_,svr_lin2.intercept_)
+'''
+plot3:
+'''
+from scipy.optimize import fsolve
+#第一条拟合直线
+def line1(x):
+    a1=svr_lin1.coef_[0][0]
+    b1=svr_lin1.intercept_[0]
+    return a1*x+b1
+
+#第二条拟合直线
+def line2(x):
+    a2=svr_lin2.coef_[0][0]
+    b2=svr_lin2.intercept_[0]
+    return a2*x+b2
+
+#计算两条线交点
+def findIntersection(fun1,fun2,x0):
+    return fsolve(lambda x:fun1(x)-fun2(x),x0)
+
+result=findIntersection(line1,line2,0.0)
+print("[x,y]=[%d,%d]"%(result,line1(result)))
+x=np.linspace(0,300,31)
+ax[1,0].plot(x,line1(x),x,line2(x),result,line1(result),'ro')
 
 #显示图像
 plt.show()

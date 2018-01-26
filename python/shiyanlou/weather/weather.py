@@ -258,7 +258,7 @@ def roseWind_avgSpeed(df_city):
     for deg in degs:
         tmp.append(df_city[(df_city['wind_deg']>(deg-46)) & (df_city['wind_deg']<deg)]['wind_speed'].mean())
     return np.array(tmp)
-showRoseWind(roseWind_avgSpeed(df_ferrara),'Ferrara',max(hist),11)
+showRoseWind(roseWind_avgSpeed(df_ferrara),'Ferrara',max(hist),11)  #"warnning:invalid value encountered"是因为有区间没有值，mean()的结果为nan
 
 #显示图像
 plt.show()

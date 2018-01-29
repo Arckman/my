@@ -61,7 +61,7 @@ def build_dataset(data):
         if row['WLoc']=='H':
             team1_elo+=100
         else:
-            team2_elo+=200
+            team2_elo+=100
         team1_feather=[team1_elo]
         team2_feather=[team2_elo]
 
@@ -116,7 +116,7 @@ if __name__=="__main__":
     model.fit(X,y)
     #10折交叉验证正确率
     print("Doing cross-validation..")
-    print(cross_val_predict(model,X,y,cv=10,scoring='accuracy',n_jobs=-1).mean())
+    print(cross_val_predict(model,X,y,cv=10,n_jobs=-1).mean())
 
     #预测
     print("Predicting on new schedule..")
@@ -135,7 +135,7 @@ if __name__=="__main__":
             winner=team2
             loser=team1
             result.append([winner,loser,1-prob])
-        with open(folder+'/16-17Result.csv') as f:
+        with open(folder+'/16-17Result.csv','w') as f:
             writer=csv.writer(f)
             writer.writerow(['win','lose','probability'])
             writer.writerows(result)

@@ -86,7 +86,7 @@ def drawFirstPage(dir,data,ini):
     txt = Image.new('RGBA',ini['_size'], (255,255,255,0))
 
     # get a font
-    fnt = ImageFont.truetype("SIMSUN.TTC",size=18)
+    fnt = ImageFont.truetype("SIMSUN.TTC",size=ini['_1_size'])
     # get a drawing context
     d = ImageDraw.Draw(txt)
 
@@ -100,7 +100,7 @@ def drawSecondPage(dir,data,ini):
     txt = Image.new('RGBA',ini['_size'], (255,255,255,0))
 
     # get a font
-    fnt = ImageFont.truetype("SIMSUN.TTC",size=18)
+    fnt = ImageFont.truetype("SIMSUN.TTC",size=ini['_2_size'])
     # get a drawing context
     d = ImageDraw.Draw(txt)
 

@@ -55,7 +55,7 @@ from openpyxl.utils.datetime import from_excel
 sheetnames=[]
 data=[]
 import time
-import datetime,dateutil
+import datetime
 def readData(filename):
     global data,sheetnames
     wb=load_workbook(filename)
@@ -83,7 +83,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 def drawFirstPage(dir,data,ini):
     # make a blank image for the text, initialized to transparent text color
-    txt = Image.new('RGBA',ini['_size'], (255,255,255,0))
+    txt = Image.new('RGBA',ini['_size'], (0,0,0,0))
 
     # get a font
     fnt = ImageFont.truetype("SIMSUN.TTC",size=ini['_1_size'])
@@ -97,7 +97,7 @@ def drawFirstPage(dir,data,ini):
 
 def drawSecondPage(dir,data,ini):
         # make a blank image for the text, initialized to transparent text color
-    txt = Image.new('RGBA',ini['_size'], (255,255,255,0))
+    txt = Image.new('RGBA',ini['_size'], (0,0,0,0))
 
     # get a font
     fnt = ImageFont.truetype("SIMSUN.TTC",size=ini['_2_size'])

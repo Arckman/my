@@ -100,11 +100,13 @@ from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import os
+# cm=180/2.54
+# cm=cm/14.5*17.3
 
 def drawFristPdf(dir, data, ini):
     c = canvas.Canvas(dir+os.path.sep+data['name']+'-'+data['id'][-4:] +
                       '-1-编号.pdf', pagesize=(ini['_size'][0]*cm, ini['_size'][1]*cm))
-    c.setFontSize(ini['_1_size'])
+    c.setFont('song',ini['_1_size'])
     c.drawString(ini['_po_code'][0]*cm, ini['_po_code'][1]*cm, data['code'])
     c.showPage()
     c.save()
@@ -129,6 +131,7 @@ def drawSecondPdf(dir, data, ini):
 def drawPdfs():
     global sheetnames, data, ini
     pdfmetrics.registerFont(TTFont('song', 'SIMSUN.TTC'))
+    
     for i in range(len(sheetnames)):
         # for i in range(1,2):
         sheetname = sheetnames[i]

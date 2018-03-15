@@ -130,7 +130,7 @@ def drawSecondPdf(dir, data, ini):
 
 def drawPdfs():
     global sheetnames, data, ini
-    pdfmetrics.registerFont(TTFont('song', 'SIMSUN.TTC'))
+    pdfmetrics.registerFont(TTFont('song', ini['_1_font']))
     
     for i in range(len(sheetnames)):
         # for i in range(1,2):

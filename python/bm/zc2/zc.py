@@ -99,7 +99,7 @@ def readData(filename):
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
-from reportlab.lib.colors import red
+from reportlab.lib.colors import red,pink
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import os
@@ -115,6 +115,24 @@ def drawFristPdf(dir, data, ini):
         c.setLineWidth(4)
         c.setStrokeColor(red)
         c.rect(0,0,ini['_size'][0]*cm,ini['_size'][1]*cm)
+        c.setLineWidth(1)
+        c.setStrokeColor(pink)
+        c.setDash(4,3)
+        p=c.beginPath()
+        p.moveTo(0,ini['_size'][1]*cm/4)
+        p.lineTo(ini['_size'][0]*cm,ini['_size'][1]*cm/4)
+        p.moveTo(0,ini['_size'][1]*cm/2)
+        p.lineTo(ini['_size'][0]*cm,ini['_size'][1]*cm/2)
+        p.moveTo(0,ini['_size'][1]*cm/4*3)
+        p.lineTo(ini['_size'][0]*cm,ini['_size'][1]*cm/4*3)
+        p.moveTo(ini['_size'][0]*cm/4,0)
+        p.lineTo(ini['_size'][0]*cm/4,ini['_size'][1]*cm)
+        p.moveTo(ini['_size'][0]*cm/2,0)
+        p.lineTo(ini['_size'][0]*cm/2,ini['_size'][1]*cm)
+        p.moveTo(ini['_size'][0]*cm/4*3,0)
+        p.lineTo(ini['_size'][0]*cm/4*3,ini['_size'][1]*cm)
+        p.close()
+        c.drawPath(p)
     c.showPage()
     c.save()
 
@@ -132,9 +150,27 @@ def drawSecondPdf(dir, data, ini):
     c.drawCentredString(ini['_po_cert'][0]*cm, ini['_po_cert'][1]*cm, data['cert'])
     c.drawCentredString(ini['_po_time'][0]*cm, ini['_po_time'][1]*cm, data['time'])
     if ini['_debug']:
-        c.setLineWidth(4)
         c.setStrokeColor(red)
+        c.setLineWidth(4)
         c.rect(0,0,ini['_size'][0]*cm,ini['_size'][1]*cm)
+        c.setLineWidth(1)
+        c.setStrokeColor(pink)
+        c.setDash(4,3)
+        p=c.beginPath()
+        p.moveTo(0,ini['_size'][1]*cm/4)
+        p.lineTo(ini['_size'][0]*cm,ini['_size'][1]*cm/4)
+        p.moveTo(0,ini['_size'][1]*cm/2)
+        p.lineTo(ini['_size'][0]*cm,ini['_size'][1]*cm/2)
+        p.moveTo(0,ini['_size'][1]*cm/4*3)
+        p.lineTo(ini['_size'][0]*cm,ini['_size'][1]*cm/4*3)
+        p.moveTo(ini['_size'][0]*cm/4,0)
+        p.lineTo(ini['_size'][0]*cm/4,ini['_size'][1]*cm)
+        p.moveTo(ini['_size'][0]*cm/2,0)
+        p.lineTo(ini['_size'][0]*cm/2,ini['_size'][1]*cm)
+        p.moveTo(ini['_size'][0]*cm/4*3,0)
+        p.lineTo(ini['_size'][0]*cm/4*3,ini['_size'][1]*cm)
+        p.close()
+        c.drawPath(p)
     c.showPage()
     c.save()
 

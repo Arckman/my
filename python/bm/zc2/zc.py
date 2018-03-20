@@ -112,6 +112,7 @@ def drawFristPdf(dir, data, ini):
     c.setFont('song',ini['_1_size'])
     c.drawString(ini['_po_code'][0]*cm, ini['_po_code'][1]*cm, data['code'])
     if ini['_debug']:
+        c.setLineWidth(4)
         c.setStrokeColor(red)
         c.rect(0,0,ini['_size'][0]*cm,ini['_size'][1]*cm)
     c.showPage()
@@ -131,6 +132,7 @@ def drawSecondPdf(dir, data, ini):
     c.drawCentredString(ini['_po_cert'][0]*cm, ini['_po_cert'][1]*cm, data['cert'])
     c.drawCentredString(ini['_po_time'][0]*cm, ini['_po_time'][1]*cm, data['time'])
     if ini['_debug']:
+        c.setLineWidth(4)
         c.setStrokeColor(red)
         c.rect(0,0,ini['_size'][0]*cm,ini['_size'][1]*cm)
     c.showPage()

@@ -38,6 +38,8 @@ def readInfo():
                 ini['_po_cert'] = i[1]
             elif i[0] == '授予时间位置':
                 ini['_po_time'] = i[1]
+            elif i[0]=='测试':
+                ini['_debug']=i[1].lower()
 
     def str2tuple(s):
         t = s.split(',')
@@ -54,7 +56,7 @@ def readInfo():
     ini['_po_category'] = str2tuple(ini['_po_category'])
     ini['_po_cert'] = str2tuple(ini['_po_cert'])
     ini['_po_time'] = str2tuple(ini['_po_time'])
-
+    ini['_debug']=True if ini['_debug']=='true' else False
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils.datetime import from_excel
@@ -97,6 +99,7 @@ def readData(filename):
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
+from reportlab.lib.colors import red
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import os
@@ -108,6 +111,9 @@ def drawFristPdf(dir, data, ini):
                       '-1-编号.pdf', pagesize=(ini['_size'][0]*cm, ini['_size'][1]*cm))
     c.setFont('song',ini['_1_size'])
     c.drawString(ini['_po_code'][0]*cm, ini['_po_code'][1]*cm, data['code'])
+    if ini['_debug']:
+        c.setStrokeColor(red)
+        c.rect(0,0,ini['_size'][0]*cm,ini['_size'][1]*cm)
     c.showPage()
     c.save()
 
@@ -124,6 +130,9 @@ def drawSecondPdf(dir, data, ini):
                  ini['_po_category'][1]*cm, data['category'])
     c.drawCentredString(ini['_po_cert'][0]*cm, ini['_po_cert'][1]*cm, data['cert'])
     c.drawCentredString(ini['_po_time'][0]*cm, ini['_po_time'][1]*cm, data['time'])
+    if ini['_debug']:
+        c.setStrokeColor(red)
+        c.rect(0,0,ini['_size'][0]*cm,ini['_size'][1]*cm)
     c.showPage()
     c.save()
 

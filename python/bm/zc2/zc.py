@@ -5,7 +5,7 @@ ini = dict()
 
 def readInfo():
     global ini
-    with open('info') as f:
+    with open('info',encoding='u8') as f:   #fix reading bug in windows
         # f.readline()
         for l in f.readlines():
             l = l.strip()
@@ -85,7 +85,9 @@ def readData(filename):
             p['category'] = sheet.cell(row=r, column=5).value.strip()
             p['cert'] = sheet.cell(row=r, column=6).value.strip()
             tt = from_excel(sheet.cell(row=r, column=7).value)
-            tt = tt.strftime('%Y年%m月%d日')  # 2018年03月08日
+            # tt = tt.strftime('%Y年%m月%d日')  # 2018年03月08日
+            tt=tt.strftime('%Y{0}%m{1}%d{2}').format(*'年月日')
+            #fix bug for strftime() in windows ,referring to https://stackoverflow.com/questions/16034060/python3-datetime-datetime-strftime-failed-to-accept-utf-8-string-format
             # print(tt[-3])
             if tt[5] == '0':
                 tt = tt[:5]+tt[6:]
